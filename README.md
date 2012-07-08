@@ -26,3 +26,10 @@ Heuristic as follows:
   from snapshot, collect into data model (associative array), plot data,
   done. 
 
+License & Source code
+- CLOC is licensed under the GPL v2 which can be accessed at
+  http://www.gnu.org/licenses/gpl-2.0.html
+- CLOC source code is available from SourceForge at
+  http://cloc.sourceforge.net
+- This tool shall also be licensed under the GPL v2.
+
