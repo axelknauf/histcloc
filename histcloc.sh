@@ -46,8 +46,10 @@ declare -i EACH
 EACH="${TOTAL} / ${SNAP_COUNT}"
 
 echo "Using each ${EACH}th revision."
+
 # sed -n 'Xp' file
 # will print the X'th line of the 'file'
+# http://stackoverflow.com/a/448047
 
 echo "Rest not implemented, yet."
 exit 1
