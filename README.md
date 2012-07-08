@@ -26,6 +26,12 @@ Heuristic as follows:
   from snapshot, collect into data model (associative array), plot data,
   done. 
 
+Requirements
+- CLOC (Perl version for Linux is included)
+- Bash v4 or later
+- sed 
+- git 1.7.9 or later, possibly earlier versions (not tested)
+
 License & Source code
 - CLOC is licensed under the GPL v2 which can be accessed at
   http://www.gnu.org/licenses/gpl-2.0.html
