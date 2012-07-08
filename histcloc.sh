@@ -15,19 +15,42 @@ WD=/home/axe/code/tribler/release-5.5.x
 # How many shapshots to take
 SNAP_COUNT=10
 
+if [ ! -d ${WD} ]; then
+  echo "Working copy does not exist or is not a directory."
+  exit 1
+fi
+
+cd ${WD} && git status > /dev/null 2>&1
+GIT_STATUS=$?
+if [ ${GIT_STATUS} -ne 0 ]; then
+  echo "Either not a git working copy, or not clean. Aborting."
+  exit 1
+fi
+
+echo "Working copy is ${WD}."
+echo "Desired snapshot count is ${SNAP_COUNT}."
+
 # 2) Internal variables and setup
 # Determine which revisions to fetch from working copy
 LOG=$(mktemp)
 git log --reverse --format=%H ${WD} > ${LOG}
-TOTAL=$(wc -l ${LOG})
-if [ ${TOTAL} < ${SNAP_COUNT} ]; then
+TOTAL=$(wc -l ${LOG} | cut -d" " -f1)
+echo "Total number of revisions in working copy is ${TOTAL}."
+
+if [ ${TOTAL} -lt ${SNAP_COUNT} ]; then
   echo "No enough revisions (${TOTAL})."
   exit 1
 fi
 
+declare -i EACH
+EACH="${TOTAL} / ${SNAP_COUNT}"
+
+echo "Using each ${EACH}th revision."
 # sed -n 'Xp' file
 # will print the X'th line of the 'file'
 
+echo "Rest not implemented, yet."
+exit 1
 
 # Initialize array for data collection
 
