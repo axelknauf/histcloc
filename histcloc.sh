@@ -71,7 +71,6 @@ TMPREVS=$(mktemp)
 sed -n "0~${EACH}p" ${LOG} > ${TMPREVS}
 echo "Extracted $(wc -l ${TMPREVS} | cut -d" " -f1) relevant revisions."
 revs=($(cat ${TMPREVS}))
-rm ${TMPREVS}
 
 
 # Array containing collected statistics
@@ -97,6 +96,7 @@ do
   # remove head line from CSV
   csv=${TMPDIR}/${rev}.csv
   sed -n '3,$p' ${cur} > ${csv}
+  rm ${cur}
 
   while read line
   do
@@ -107,6 +107,11 @@ do
   done < ${csv}
 
 done
+
+# Some cleanup
+rm ${csv}
+rm ${TMPREVS}
+rm ${LOG}
 
 echo "Done."
 exit 0
