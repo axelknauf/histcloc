@@ -12,6 +12,7 @@
 # FIXME: optional output of graphical statistics with RRDTool or GNUPlot
 # FIXME: code cleanup, extract function
 # FIXME: support other SCMs like SVN, CVS, ..
+# FIXME: add excludes to CLOC call
 # ----------------------------------------------------------------------
 # 
 # ----------------------------------------------------------------------
@@ -22,7 +23,9 @@ WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
 SNAP_COUNT=5
 # Which cloc utility to use (defaults to the shipped one)
-CLOC=./cloc/cloc-1.56.pl
+CLOC=/cygdrive/c/dev/code/oss/histcloc/cloc/cloc-1.56.pl
+# Define excluded directories for CLOC call
+EXCLUDE_DIRS=".git,target,node_modules,.settings"
 
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
@@ -75,7 +78,7 @@ do
   echo "${counter}/${SNAP_COUNT}) Checking out revision ${rev}."
   counter=$(( ${counter} + 1 ))
   git checkout -q ${rev}
-  echo ${CLOC} --quiet --csv ${WD}
+  ${CLOC} --exclude-dir=${EXCLUDE_DIRS} --quiet --csv ${WD}/
 done < ${REVS}
 
 echo "Rest not implemented, yet."
