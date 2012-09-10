@@ -103,19 +103,6 @@ do
     echo "${typ}: ${files} files, ${blank} blank, ${comment} comment, ${code} code."
   done < ${csv}
 
-  #while read -r line
-  #do
-  #  typ=$(echo ${line} | cut -d, -f2 -)
-  #  files=$(echo ${line} | cut -d, -f1 -)
-  #  blank=$(echo ${line} | cut -d, -f3 -)
-  #  comment=$(echo ${line} | cut -d, -f4 -)
-  #  code=$(echo ${line} | cut -d, -f5 -)
-
-  #  echo "${typ}: ${files} files, ${blank} blank, ${comment} comment, ${code} code."
-
-  #  #stats[${typ}]=${count_files}
-  #done < ${csv}
-
 done
 
 # Some cleanup
