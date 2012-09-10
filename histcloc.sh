@@ -67,25 +67,29 @@ echo "Using each ${EACH}th revision."
 # sed -n 'Xp' <file> will print the X'th line of the 'file'
 # http://stackoverflow.com/a/448047
 echo "Determining relevant revisions from full history."
-REVS=$(mktemp)
-sed -n "0~${EACH}p" ${LOG} > ${REVS}
-echo "Extracted $(wc -l ${REVS} | cut -d" " -f1) relevant revisions."
+TMPREVS=$(mktemp)
+sed -n "0~${EACH}p" ${LOG} > ${TMPREVS}
+echo "Extracted $(wc -l ${TMPREVS} | cut -d" " -f1) relevant revisions."
+revs=($(cat ${TMPREVS}))
+rm ${TMPREVS}
 
 
-# This is the master associative array containing all the statistics
-# once collected from the source code. It will be used to generate the
-# output at the end of the script.
+# Array containing collected statistics
 declare -A stats
+# Arrays containing collected file types
+declare -A types
+# Constant qualifiers for collected numbers
+VALS=(files blank comment code)
 
 # ----------------------------------------------------------------------
 # Fetch each relevant revision and determine stats.
-counter=1
 echo "Iterating over relevant revisions."
-while read rev
+max_index=${#revs[*]}
+for ((i = 0; i < ${max_index}; i++))
 do
+  rev=${revs[${i}]}
   echo "----------------------------------------------------------------------"
-  echo "${counter}/${SNAP_COUNT}) Checking out revision ${rev}."
-  counter=$(( ${counter} + 1 ))
+  echo "$((i + 1))/${SNAP_COUNT}) Checking out revision ${rev}."
   git checkout -q ${rev}
   cur=$(mktemp)
   ${CLOC} --exclude-dir=${EXCLUDE_DIRS} --quiet --csv --progress-rate=0 ${WD}/ > ${cur}
@@ -96,13 +100,13 @@ do
 
   while read line
   do
-    echo ${line}
     typ=$(echo ${line} | cut -d, -f2 -)
     count_files=$(echo ${line} | cut -d, -f1 -)
-    echo "Total ${count_files} ${typ} files."
+    echo "${count_files} ${typ} files."
+    stats[${typ}]=${count_files}
   done < ${csv}
 
-done < ${REVS}
+done
 
 echo "Done."
 exit 0
