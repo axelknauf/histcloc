@@ -21,11 +21,13 @@
 #WD=/home/axe/code/tribler/release-5.5.x
 WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
-SNAP_COUNT=5
+SNAP_COUNT=3
 # Which cloc utility to use (defaults to the shipped one)
 CLOC=/cygdrive/c/dev/code/oss/histcloc/cloc/cloc-1.56.pl
 # Define excluded directories for CLOC call
 EXCLUDE_DIRS=".git,target,node_modules,.settings"
+# The temporary directory
+TMPDIR=/tmp
 
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
@@ -46,6 +48,7 @@ echo "Desired snapshot count is ${SNAP_COUNT}."
 # 2) Internal variables and setup
 # Determine which revisions to fetch from working copy
 LOG=$(mktemp)
+git checkout -q master
 git log --reverse --format=%H ${WD} > ${LOG}
 TOTAL=$(wc -l ${LOG} | cut -d" " -f1)
 echo "Total number of revisions in working copy is ${TOTAL}."
@@ -69,29 +72,38 @@ sed -n "0~${EACH}p" ${LOG} > ${REVS}
 echo "Extracted $(wc -l ${REVS} | cut -d" " -f1) relevant revisions."
 
 
+# This is the master associative array containing all the statistics
+# once collected from the source code. It will be used to generate the
+# output at the end of the script.
+declare -A stats
+
 # ----------------------------------------------------------------------
 # Fetch each relevant revision and determine stats.
 counter=1
 echo "Iterating over relevant revisions."
 while read rev
 do
+  echo "----------------------------------------------------------------------"
   echo "${counter}/${SNAP_COUNT}) Checking out revision ${rev}."
   counter=$(( ${counter} + 1 ))
   git checkout -q ${rev}
-  ${CLOC} --exclude-dir=${EXCLUDE_DIRS} --quiet --csv ${WD}/
+  cur=$(mktemp)
+  ${CLOC} --exclude-dir=${EXCLUDE_DIRS} --quiet --csv --progress-rate=0 ${WD}/ > ${cur}
+
+  # remove head line from CSV
+  csv=${TMPDIR}/${rev}.csv
+  sed -n '3,$p' ${cur} > ${csv}
+
+  while read line
+  do
+    echo ${line}
+    typ=$(echo ${line} | cut -d, -f2 -)
+    count_files=$(echo ${line} | cut -d, -f1 -)
+    echo "Total ${count_files} ${typ} files."
+  done < ${csv}
+
 done < ${REVS}
 
-echo "Rest not implemented, yet."
-exit 1
-
-# Initialize array for data collection
-
-# 3) Logic to fetch data 
-# - iterate over revisions
-# - check out revision
-# - run CLOC with --quiet and --csv parameters
-# - fetch data from CLOC output and collect it into an array
-
-# 4) Output and summary
-# - output the results
+echo "Done."
+exit 0
 
