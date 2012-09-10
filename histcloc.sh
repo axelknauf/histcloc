@@ -10,17 +10,19 @@
 # FIXME: make script parameterizable from command line or config file
 # FIXME: make output format generic for post-processing by other tools
 # FIXME: optional output of graphical statistics with RRDTool or GNUPlot
+# FIXME: code cleanup, extract function
+# FIXME: support other SCMs like SVN, CVS, ..
 # ----------------------------------------------------------------------
 # 
+# ----------------------------------------------------------------------
 # 1) Configuration options
-# TODO extract as command line arguments
-
-# The code base under analysis, just using an open source project I
-# find interesting.
+# The code base under analysis, must be a git repo by now
 #WD=/home/axe/code/tribler/release-5.5.x
 WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
-SNAP_COUNT=10
+SNAP_COUNT=5
+# Which cloc utility to use (defaults to the shipped one)
+CLOC=./cloc/cloc-1.56.pl
 
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
@@ -37,10 +39,10 @@ fi
 echo "Working copy is ${WD}."
 echo "Desired snapshot count is ${SNAP_COUNT}."
 
+# ----------------------------------------------------------------------
 # 2) Internal variables and setup
 # Determine which revisions to fetch from working copy
-#LOG=$(mktemp)
-LOG=/tmp/histcloc.tmp
+LOG=$(mktemp)
 git log --reverse --format=%H ${WD} > ${LOG}
 TOTAL=$(wc -l ${LOG} | cut -d" " -f1)
 echo "Total number of revisions in working copy is ${TOTAL}."
@@ -55,22 +57,25 @@ EACH="${TOTAL} / ${SNAP_COUNT}"
 
 echo "Using each ${EACH}th revision."
 
-# sed -n 'Xp' file
-# will print the X'th line of the 'file'
+# ----------------------------------------------------------------------
+# sed -n 'Xp' <file> will print the X'th line of the 'file'
 # http://stackoverflow.com/a/448047
 echo "Determining relevant revisions from full history."
-#REVS=$(mktemp)
-REVS=/tmp/histcloc-revs.tmp
+REVS=$(mktemp)
 sed -n "0~${EACH}p" ${LOG} > ${REVS}
 echo "Extracted $(wc -l ${REVS} | cut -d" " -f1) relevant revisions."
 
 
+# ----------------------------------------------------------------------
+# Fetch each relevant revision and determine stats.
+counter=1
 echo "Iterating over relevant revisions."
 while read rev
 do
-  echo "Checking out revision ${rev}."
-  git checkout ${rev}
-  
+  echo "${counter}/${SNAP_COUNT}) Checking out revision ${rev}."
+  counter=$(( ${counter} + 1 ))
+  git checkout -q ${rev}
+  echo ${CLOC} --quiet --csv ${WD}
 done < ${REVS}
 
 echo "Rest not implemented, yet."
