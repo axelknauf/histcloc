@@ -91,20 +91,30 @@ do
   echo "$((i + 1))/${SNAP_COUNT}) Checking out revision ${rev}."
   git checkout -q ${rev}
   cur=$(mktemp)
-  ${CLOC} --exclude-dir=${EXCLUDE_DIRS} --quiet --csv --progress-rate=0 ${WD}/ > ${cur}
+  ${CLOC} --exclude-dir=${EXCLUDE_DIRS} --quiet --csv --csv-delimiter=" " --progress-rate=0 ${WD}/ > ${cur}
 
   # remove head line from CSV
   csv=${TMPDIR}/${rev}.csv
   sed -n '3,$p' ${cur} > ${csv}
   rm ${cur}
 
-  while read line
+  while read -r files typ blank comment code
   do
-    typ=$(echo ${line} | cut -d, -f2 -)
-    count_files=$(echo ${line} | cut -d, -f1 -)
-    echo "${count_files} ${typ} files."
-    stats[${typ}]=${count_files}
+    echo "${typ}: ${files} files, ${blank} blank, ${comment} comment, ${code} code."
   done < ${csv}
+
+  #while read -r line
+  #do
+  #  typ=$(echo ${line} | cut -d, -f2 -)
+  #  files=$(echo ${line} | cut -d, -f1 -)
+  #  blank=$(echo ${line} | cut -d, -f3 -)
+  #  comment=$(echo ${line} | cut -d, -f4 -)
+  #  code=$(echo ${line} | cut -d, -f5 -)
+
+  #  echo "${typ}: ${files} files, ${blank} blank, ${comment} comment, ${code} code."
+
+  #  #stats[${typ}]=${count_files}
+  #done < ${csv}
 
 done
 
