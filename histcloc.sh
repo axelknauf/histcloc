@@ -6,6 +6,12 @@
 #   https://github.com/axelknauf/histcloc
 # for details.
 # ----------------------------------------------------------------------
+# FIXME: add checking for necessary tools, git, sed, cloc
+# FIXME: make script parameterizable from command line or config file
+# FIXME: make output format generic for post-processing by other tools
+# FIXME: optional output of graphical statistics with RRDTool or GNUPlot
+# ----------------------------------------------------------------------
+# 
 # 1) Configuration options
 # TODO extract as command line arguments
 
@@ -59,13 +65,13 @@ sed -n "0~${EACH}p" ${LOG} > ${REVS}
 echo "Extracted $(wc -l ${REVS} | cut -d" " -f1) relevant revisions."
 
 
-#echo "Iterating over relevant revisions."
-#while read rev
-#do
-#  echo "Checking out revision ${rev}."
-#  git checkout ${rev}
-#
-#done < ${REVS}
+echo "Iterating over relevant revisions."
+while read rev
+do
+  echo "Checking out revision ${rev}."
+  git checkout ${rev}
+  
+done < ${REVS}
 
 echo "Rest not implemented, yet."
 exit 1
