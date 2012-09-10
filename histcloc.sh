@@ -11,7 +11,8 @@
 
 # The code base under analysis, just using an open source project I
 # find interesting.
-WD=/home/axe/code/tribler/release-5.5.x
+#WD=/home/axe/code/tribler/release-5.5.x
+WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
 SNAP_COUNT=10
 
@@ -32,7 +33,8 @@ echo "Desired snapshot count is ${SNAP_COUNT}."
 
 # 2) Internal variables and setup
 # Determine which revisions to fetch from working copy
-LOG=$(mktemp)
+#LOG=$(mktemp)
+LOG=/tmp/histcloc.tmp
 git log --reverse --format=%H ${WD} > ${LOG}
 TOTAL=$(wc -l ${LOG} | cut -d" " -f1)
 echo "Total number of revisions in working copy is ${TOTAL}."
@@ -50,6 +52,20 @@ echo "Using each ${EACH}th revision."
 # sed -n 'Xp' file
 # will print the X'th line of the 'file'
 # http://stackoverflow.com/a/448047
+echo "Determining relevant revisions from full history."
+#REVS=$(mktemp)
+REVS=/tmp/histcloc-revs.tmp
+sed -n "0~${EACH}p" ${LOG} > ${REVS}
+echo "Extracted $(wc -l ${REVS} | cut -d" " -f1) relevant revisions."
+
+
+#echo "Iterating over relevant revisions."
+#while read rev
+#do
+#  echo "Checking out revision ${rev}."
+#  git checkout ${rev}
+#
+#done < ${REVS}
 
 echo "Rest not implemented, yet."
 exit 1
