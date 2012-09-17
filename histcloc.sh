@@ -21,7 +21,7 @@
 #WD=/home/axe/code/tribler/release-5.5.x
 WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
-SNAP_COUNT=3
+SNAP_COUNT=10
 # Which cloc utility to use (defaults to the shipped one)
 CLOC=/cygdrive/c/dev/code/oss/histcloc/cloc/cloc-1.56.pl
 # Define excluded directories for CLOC call
@@ -84,6 +84,9 @@ VALS=(files blank comment code)
 # Fetch each relevant revision and determine stats.
 echo "Iterating over relevant revisions."
 max_index=${#revs[*]}
+# Format is: "Index,Revision,Type,Files,Code,Comment,Blank"
+statfile=$(mktemp)
+
 for ((i = 0; i < ${max_index}; i++))
 do
   rev=${revs[${i}]}
@@ -100,15 +103,18 @@ do
 
   while read -r files typ blank comment code
   do
-    echo "${typ}: ${files} files, ${blank} blank, ${comment} comment, ${code} code."
+    echo "${i},${rev},${typ},${files},${code},${comment},${blank}" >> ${statfile}
+    echo "${i},${rev},${typ},${files},${code},${comment},${blank}" 
   done < ${csv}
 
 done
 
+echo "Wrote ${statfile}."
 # Some cleanup
 rm ${csv}
 rm ${TMPREVS}
 rm ${LOG}
+#rm ${statfile}
 
 echo "Done."
 exit 0
