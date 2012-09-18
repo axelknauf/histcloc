@@ -14,9 +14,9 @@ Example
 The following data and image have been generated from an actual project
 working copy:
 
-![histcloc example image](test/stats.png)
+![histcloc example image](https://github.com/axelknauf/histcloc/blob/master/test/stats.png)
 
-And here is the [data file](test/test.dat) for this image.
+And here is the [data file](https://github.com/axelknauf/histcloc/blob/master/test/test.dat) for this image.
 
 
 Processing
