@@ -14,28 +14,29 @@ Planned so far:
 - git source code management tool (maybe svn later on, or even
   pluggable)
 - cloc 1.5.6 as coming from Sourceforge (see link above)
-- plotting shall be done using either RRDTool or GNUPlot
+- plotting shall be done using GNUPlot
 
-Heuristic as follows:
-- Check working copy compatibility
-- Verify it is using a compatible SCM (only git)
-- Check size of the history
-- Make assumptions on how many snapshots to take (eventually
-  parameterized from user input first)
-- Check out snapshots, run cloc across the interim state, collect data
-  from snapshot, collect into data model (associative array), plot data,
+Processing takes place as follows:
+- Check working copy compatibility: is it a git working copy? 
+- Check size of the history: do we have enough revisions for making
+  snapshots? 
+- Use user input for snapshot count, working copy path, output file..
+- Check out snapshots, run cloc across the revision, collect data from
+  snapshot, collect into data model (temporary file), plot data,
   done. 
 
 Requirements
 - CLOC (Perl version for Linux is included)
+- Perl for running CLOC
 - Bash v4 or later
-- sed 
+- Unix tools: sed, cut, grep, tr 
 - git 1.7.9 or later, possibly earlier versions (not tested)
+- gnuplot, tested with 4.4.4
 
 License & Source code
 - CLOC is licensed under the GPL v2 which can be accessed at
   http://www.gnu.org/licenses/gpl-2.0.html
 - CLOC source code is available from SourceForge at
   http://cloc.sourceforge.net
-- This tool shall also be licensed under the GPL v2.
+- This tool is licensed under the GPL v2.
 
