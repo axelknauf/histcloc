@@ -21,7 +21,7 @@
 #WD=/home/axe/code/tribler/release-5.5.x
 WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
-SNAP_COUNT=10
+SNAP_COUNT=2
 # Which cloc utility to use (defaults to the shipped one)
 CLOC=/cygdrive/c/dev/code/oss/histcloc/cloc/cloc-1.56.pl
 # Define excluded directories for CLOC call
@@ -73,10 +73,6 @@ echo "Extracted $(wc -l ${TMPREVS} | cut -d" " -f1) relevant revisions."
 revs=($(cat ${TMPREVS}))
 
 
-# Array containing collected statistics
-declare -A stats
-# Arrays containing collected file types
-declare -A types
 # Constant qualifiers for collected numbers
 VALS=(files blank comment code)
 
@@ -106,15 +102,55 @@ do
     echo "${i},${rev},${typ},${files},${code},${comment},${blank}" >> ${statfile}
     echo "${i},${rev},${typ},${files},${code},${comment},${blank}" 
   done < ${csv}
+  echo -en "\n\n" >> ${statfile}
 
 done
-
 echo "Wrote ${statfile}."
+
+# ----------------------------------------------------------------------
+# Make plottable output file from data, so that we 
+# can use it in GNUPlot.
+plottable=$(mktemp)
+declare -a types
+types=($(cut -d, -f3 ${statfile} | sort | uniq | tr -s "\r\n" "  "))
+type_count=${#types[*]}
+echo -n "Revision " > ${plottable}
+for ((i = 0; i < ${type_count}; i++))
+do
+  echo -n "${types[${i}]} " >> ${plottable}
+done
+echo -en "\n" >> ${plottable}
+echo "Wrote header line to ${plottable}."
+
+for ((i = 0; i < ${max_index}; i++))
+do
+  rev=${revs[${i}]}
+  echo -n "${rev} " >> ${plottable}
+  echo -n "${rev} " 
+  for ((j = 0; j < ${type_count}; j++))
+  do
+    typ=${types[${j}]}
+    num_files=$(grep "${rev},${typ}," ${statfile} | cut -d, -f5 | tr -s "\r\n" "  ")
+    if [ -n "${num_files}" ];
+    then
+      echo -n "${num_files} " >> ${plottable}
+      echo -n "${num_files} " 
+    else
+      echo -n "- " >> ${plottable}
+      echo -n "- " 
+    fi
+  done
+  echo -en "\n" >> ${plottable}
+  echo -en "\n" 
+done
+echo "Wrote data to ${plottable}."
+
 # Some cleanup
 rm ${csv}
 rm ${TMPREVS}
 rm ${LOG}
 #rm ${statfile}
+#rm ${plottable}
 
 echo "Done."
 exit 0
