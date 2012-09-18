@@ -23,11 +23,13 @@ WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
 SNAP_COUNT=3
 # Which cloc utility to use (defaults to the shipped one)
-CLOC=/cygdrive/c/dev/code/oss/histcloc/cloc/cloc-1.56.pl
+CLOC=$(pwd)/cloc/cloc-1.56.pl
 # Define excluded directories for CLOC call
 EXCLUDE_DIRS=".git,target,node_modules,.settings"
 # The temporary directory
 TMPDIR=/tmp
+# Output image file name
+OUTFILE=$(pwd)/stats.png
 
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
@@ -103,6 +105,7 @@ do
     echo "${i},${rev},${typ},${files},${code},${comment},${blank}" 
   done < ${csv}
   echo -en "\n\n" >> ${statfile}
+  rm ${csv}
 
 done
 echo "Wrote ${statfile}."
@@ -147,11 +150,33 @@ do
 done
 echo "Wrote data to ${plottable}."
 
+gnuplot <<PLOTSCR
+set terminal png size 800,500
+set output "${OUTFILE}"
+
+set autoscale
+set style data linespoints
+
+set datafile missing "-"
+
+set xlabel "Revision"
+set ylabel "Lines of code"
+set title "Code stats for project"
+set key default outside 
+
+set xtics nomirror rotate
+
+plot '${plottable}' using 2:xtic(1) title columnheader(2), \
+  for [i=3:${type_count}] '' using i title columnheader(i)
+PLOTSCR
+echo "Generated plot as ${OUTFILE}."
+
 # Some cleanup
-rm ${csv}
 rm ${TMPREVS}
 rm ${LOG}
 rm ${statfile}
+rm ${plottable}
+echo "Removed temporary files."
 
 echo "Done."
 exit 0
