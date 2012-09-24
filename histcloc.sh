@@ -7,9 +7,7 @@
 # for details.
 # ----------------------------------------------------------------------
 # FIXME: make script parameterizable from command line or config file
-# FIXME: make output format generic for post-processing by other tools
-# FIXME: optional output of graphical statistics with GNUPlot
-# FIXME: code cleanup, extract function
+# FIXME: code cleanup trap, extract function
 # FIXME: support other SCMs like SVN, CVS, ..
 # FIXME: add support for other stats beside LOC (blank, comment, #files)
 # ----------------------------------------------------------------------
