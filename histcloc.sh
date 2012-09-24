@@ -19,7 +19,7 @@ WD=/home/axe/code/istudy/
 #WD=/home/axe/code/tribler/release-5.5.x
 #WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
-SNAP_COUNT=3
+SNAP_COUNT=10
 # Which cloc utility to use (defaults to the shipped one)
 CLOC=$(pwd)/cloc/cloc-1.56.pl
 # Define excluded directories for CLOC call
@@ -42,6 +42,7 @@ then
 fi
 
 # ----------------------------------------------------------------------
+# Check target directory and working copy
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
   exit 1
@@ -58,7 +59,6 @@ echo "Working copy is ${WD}."
 echo "Desired snapshot count is ${SNAP_COUNT}."
 
 # ----------------------------------------------------------------------
-# 2) Internal variables and setup
 # Determine which revisions to fetch from working copy
 LOG=$(mktemp)
 git checkout -q master
@@ -76,7 +76,6 @@ EACH="${TOTAL} / ${SNAP_COUNT}"
 
 echo "Using each ${EACH}th revision."
 
-# ----------------------------------------------------------------------
 # sed -n 'Xp' <file> will print the X'th line of the 'file'
 # http://stackoverflow.com/a/448047
 echo "Determining relevant revisions from full history."
@@ -86,14 +85,10 @@ echo "Extracted $(wc -l ${TMPREVS} | cut -d" " -f1) relevant revisions."
 revs=($(cat ${TMPREVS}))
 
 
-# Constant qualifiers for collected numbers
-VALS=(files blank comment code)
-
 # ----------------------------------------------------------------------
 # Fetch each relevant revision and determine stats.
 echo "Iterating over relevant revisions."
 max_index=${#revs[*]}
-# Format is: "Index,Revision,Type,Files,Code,Comment,Blank"
 statfile=$(mktemp)
 
 for ((i = 0; i < ${max_index}; i++))
@@ -122,12 +117,13 @@ done
 echo "Wrote ${statfile}."
 
 # ----------------------------------------------------------------------
-# Make plottable output file from data, so that we 
-# can use it in GNUPlot.
+# Make plottable output file from data, so that we can use GNUPlot.
 plottable=$(mktemp)
 declare -a types
 types=($(cut -d, -f3 ${statfile} | sort | uniq | tr -s "\r\n" "  "))
 type_count=${#types[*]}
+
+# Write headline
 echo -n "Revision " > ${plottable}
 echo -n "Revision " 
 for ((i = 0; i < ${type_count}; i++))
@@ -138,6 +134,7 @@ done
 echo -en "\n" >> ${plottable}
 echo -en "\n"
 
+# Write data lines
 for ((i = 0; i < ${max_index}; i++))
 do
   rev=${revs[${i}]}
@@ -161,6 +158,9 @@ do
 done
 echo "Wrote data to ${plottable}."
 
+
+# ----------------------------------------------------------------------
+# Plot generated data file as line graph.
 gnuplot <<PLOTSCR
 set terminal png size 800,500
 set output "${OUTFILE}"
@@ -182,12 +182,16 @@ plot '${plottable}' using 2:xtic(1) title columnheader(2), \
 PLOTSCR
 echo "Generated plot as ${OUTFILE}."
 
+# ----------------------------------------------------------------------
+# Remove temporary files
 rm ${TMPREVS}
 rm ${LOG}
 rm ${statfile}
 rm ${plottable}
 echo "Removed temporary files."
 
+# ----------------------------------------------------------------------
+# Done. 
 echo "Done."
 exit 0
 
