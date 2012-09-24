@@ -9,17 +9,18 @@
 # FIXME: add checking for necessary tools, git, sed, cloc
 # FIXME: make script parameterizable from command line or config file
 # FIXME: make output format generic for post-processing by other tools
-# FIXME: optional output of graphical statistics with RRDTool or GNUPlot
+# FIXME: optional output of graphical statistics with GNUPlot
 # FIXME: code cleanup, extract function
 # FIXME: support other SCMs like SVN, CVS, ..
-# FIXME: add excludes to CLOC call
+# FIXME: add support for other stats beside LOC (blank, comment, #files)
 # ----------------------------------------------------------------------
 # 
 # ----------------------------------------------------------------------
 # 1) Configuration options
 # The code base under analysis, must be a git repo by now
+WD=/home/axe/code/istudy/
 #WD=/home/axe/code/tribler/release-5.5.x
-WD=/cygdrive/c/dev/code/oss/istudy
+#WD=/cygdrive/c/dev/code/oss/istudy
 # How many shapshots to take
 SNAP_COUNT=3
 # Which cloc utility to use (defaults to the shipped one)
@@ -30,6 +31,8 @@ EXCLUDE_DIRS=".git,target,node_modules,.settings"
 TMPDIR=/tmp
 # Output image file name
 OUTFILE=$(pwd)/stats.png
+# Project name, used for graph title
+PROJECT_NAME=$(basename ${WD})
 
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
@@ -161,7 +164,7 @@ set datafile missing "-"
 
 set xlabel "Revision"
 set ylabel "Lines of code"
-set title "Code stats for project"
+set title "Code stats for ${PROJECT_NAME}"
 set key default outside 
 
 set xtics nomirror rotate
