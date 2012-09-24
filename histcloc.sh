@@ -6,7 +6,6 @@
 #   https://github.com/axelknauf/histcloc
 # for details.
 # ----------------------------------------------------------------------
-# FIXME: add checking for necessary tools, git, sed, cloc
 # FIXME: make script parameterizable from command line or config file
 # FIXME: make output format generic for post-processing by other tools
 # FIXME: optional output of graphical statistics with GNUPlot
@@ -34,6 +33,17 @@ OUTFILE=$(pwd)/stats.png
 # Project name, used for graph title
 PROJECT_NAME=$(basename ${WD})
 
+# ----------------------------------------------------------------------
+# Check for required tools.
+which sed grep tr cut wc git > /dev/null 2>&1
+tools=$?
+if [ ${tools} -ne 0 ];
+then
+  echo "Requiring sed, grep, tr, cut, wc and git. Something's missing."
+  exit 1
+fi
+
+# ----------------------------------------------------------------------
 if [ ! -d ${WD} ]; then
   echo "Working copy does not exist or is not a directory."
   exit 1
@@ -174,7 +184,6 @@ plot '${plottable}' using 2:xtic(1) title columnheader(2), \
 PLOTSCR
 echo "Generated plot as ${OUTFILE}."
 
-# Some cleanup
 rm ${TMPREVS}
 rm ${LOG}
 rm ${statfile}
@@ -183,4 +192,5 @@ echo "Removed temporary files."
 
 echo "Done."
 exit 0
+
 
